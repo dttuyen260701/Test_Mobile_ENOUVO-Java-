@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_add_btn.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_btn_active.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_btn_add_active.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_btn_reset_active.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_choice_feature_home.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_content_choice.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_for_detail_item.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_home_content.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/drawable/bg_search_view.xml" value="0.331" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/layout/activity_main.xml" value="0.371875" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/layout/feature_choice_item.xml" value="0.371875" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/layout/feature_list_item.xml" value="0.37083333333333335" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/layout/fragment_detail.xml" value="0.371875" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/layout/fragment_details.xml" value="0.37083333333333335" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/layout/layout_approval_item.xml" value="0.37083333333333335" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/layout/layout_list_choice.xml" value="0.5" />
+        <entry key="..\:/For Work/Learn/TestMobileEunovo/app/src/main/res/layout/layout_matrix_item.xml" value="0.37083333333333335" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
