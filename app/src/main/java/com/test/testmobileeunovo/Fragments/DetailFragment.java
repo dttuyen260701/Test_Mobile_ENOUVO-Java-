@@ -108,6 +108,19 @@ public class DetailFragment extends Fragment {
         binding.rclApproval.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
         binding.rclApproval.setAdapter(approval_chosen_adapter);
 
+        binding.btnDelMatrix.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JSONObject jsonParam = new JSONObject();
+                try {
+                    jsonParam.put("id_matrix", matrix.getId());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                delApproval(jsonParam);
+            }
+        });
+
         binding.btnAddUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -324,7 +337,6 @@ public class DetailFragment extends Fragment {
             @Override
             public void onEnd(boolean value, boolean done, int next_id) {
                 if(done){
-                    Log.e("DDD", "onEnd: " + value);
                     if(value){
                         String id_approval = "";
                         for(Feature_Approval item: list_approval_chosen){
@@ -351,6 +363,40 @@ public class DetailFragment extends Fragment {
         });
 
         requestTaskAsyncTask.execute("http://tuanpc.pw/TuyenTest/api/matrix/insertMatrix.php", "POST");
+    }
+
+    private void delMatrix(JSONObject js_param){
+        RequestTaskAsyncTask requestTaskAsyncTask = new RequestTaskAsyncTask(js_param, false, new RequestTaskListener() {
+            @Override
+            public void onPre() {
+                if(getContext() != null)
+                    if (!Methods.getInstance().isNetworkConnected(getContext())) {
+                        Toast.makeText(getContext(), "Please connect Internet", Toast.LENGTH_SHORT).show();
+                    }
+                binding.layoutLoadData.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onEnd(boolean value, boolean done, int next_id) {
+                if(done){
+                    Log.e("DDD", "onEnd: " + value);
+                    if(value){
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Delete Matrix Success", Toast.LENGTH_SHORT).show();
+                        forDetailListener.onDone();
+                        forDetailListener.backFrag();
+                    } else {
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Error when Del matrix", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if(getContext() != null)
+                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        requestTaskAsyncTask.execute("http://tuanpc.pw/TuyenTest/api/matrix/deleteMatrix.php", "DELETE");
     }
 
     private void addApproval(JSONObject js_param) {
@@ -382,5 +428,36 @@ public class DetailFragment extends Fragment {
         });
 
         requestTaskAsyncTask_1.execute("http://tuanpc.pw/TuyenTest/api/matrix_approval/insertMatrix_Approval.php", "POST");
+    }
+
+    private void delApproval(JSONObject js_param){
+        RequestTaskAsyncTask requestTaskAsyncTask = new RequestTaskAsyncTask(js_param, false, new RequestTaskListener() {
+            @Override
+            public void onPre() {
+                if(getContext() != null)
+                    if (!Methods.getInstance().isNetworkConnected(getContext())) {
+                        Toast.makeText(getContext(), "Please connect Internet", Toast.LENGTH_SHORT).show();
+                    }
+                binding.layoutLoadData.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onEnd(boolean value, boolean done, int next_id) {
+                if(done){
+                    Log.e("DDD", "onEnd: " + value);
+                    if(value){
+                        delMatrix(js_param);
+                    } else {
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Error when Del Approval", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if(getContext() != null)
+                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        requestTaskAsyncTask.execute("http://tuanpc.pw/TuyenTest/api/matrix_approval/deleteByMatrixID.php", "DELETE");
     }
 }

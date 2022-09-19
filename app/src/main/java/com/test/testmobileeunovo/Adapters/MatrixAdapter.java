@@ -11,6 +11,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.test.testmobileeunovo.Listeners.ItemChosenListener;
 import com.test.testmobileeunovo.Listeners.ItemMatrixListener;
 import com.test.testmobileeunovo.Models.Matrix;
 import com.test.testmobileeunovo.R;
@@ -72,7 +73,12 @@ public class MatrixAdapter extends RecyclerView.Adapter<MatrixAdapter.MatrixHold
             txt_max_range.setText(list_data.get(position).getMax_Range() + "");
             txt_num_matrix.setText(list_data.get(position).getList_approval().size() + "");
 
-            adapter = new ApprovalAdapter(list_data.get(position).getList_approval());
+            adapter = new ApprovalAdapter(list_data.get(position).getList_approval(), new ItemChosenListener() {
+                @Override
+                public void onClick() {
+                    itemMatrixListener.onClick(list_data.get(position));
+                }
+            });
             rcl_Approval.setLayoutManager(new LinearLayoutManager(context));
             rcl_Approval.setAdapter(adapter);
         }
