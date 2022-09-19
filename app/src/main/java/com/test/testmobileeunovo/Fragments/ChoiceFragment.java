@@ -18,6 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.test.testmobileeunovo.Adapters.ListChoiceItemAdapter;
 import com.test.testmobileeunovo.Listeners.ItemChoiceListener;
+import com.test.testmobileeunovo.Listeners.OnChoiceFragHide;
 import com.test.testmobileeunovo.Models.Feature_Approval;
 import com.test.testmobileeunovo.R;
 import com.test.testmobileeunovo.databinding.LayoutListChoiceBinding;
@@ -31,11 +32,13 @@ public class ChoiceFragment extends BottomSheetDialogFragment {
     private ItemChoiceListener listener;
     private ListChoiceItemAdapter adapter;
     private String title;
+    private OnChoiceFragHide onChoiceFragHide;
 
-    public ChoiceFragment(ArrayList<Feature_Approval> list_data, ItemChoiceListener listener, String title) {
+    public ChoiceFragment(ArrayList<Feature_Approval> list_data, ItemChoiceListener listener, String title, OnChoiceFragHide onChoiceFragHide) {
         this.listener = listener;
         this.list_data = list_data;
         this.title = title;
+        this.onChoiceFragHide = onChoiceFragHide;
     }
 
     @Nullable
@@ -49,6 +52,7 @@ public class ChoiceFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onDestroyView() {
+        onChoiceFragHide.onFragHide();
         super.onDestroyView();
         binding = null;
     }

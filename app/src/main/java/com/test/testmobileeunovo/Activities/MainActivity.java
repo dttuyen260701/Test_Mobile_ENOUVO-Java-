@@ -1,7 +1,9 @@
 package com.test.testmobileeunovo.Activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -13,33 +15,33 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.test.testmobileeunovo.Adapters.ChosenItemAdapter;
 import com.test.testmobileeunovo.Adapters.MatrixAdapter;
+import com.test.testmobileeunovo.Asynctasks.LoadFeatureApprovalAsyncTask;
+import com.test.testmobileeunovo.Asynctasks.LoadMatrixAsynctask;
 import com.test.testmobileeunovo.Fragments.ChoiceFragment;
 import com.test.testmobileeunovo.Fragments.DetailFragment;
 import com.test.testmobileeunovo.Listeners.ForDetailListener;
 import com.test.testmobileeunovo.Listeners.ItemChoiceListener;
 import com.test.testmobileeunovo.Listeners.ItemChosenListener;
 import com.test.testmobileeunovo.Listeners.ItemMatrixListener;
+import com.test.testmobileeunovo.Listeners.LoadFeatureApprovalListener;
+import com.test.testmobileeunovo.Listeners.LoadMatrixListener;
+import com.test.testmobileeunovo.Listeners.OnChoiceFragHide;
 import com.test.testmobileeunovo.Models.Feature_Approval;
 import com.test.testmobileeunovo.Models.Matrix;
 import com.test.testmobileeunovo.R;
+import com.test.testmobileeunovo.Utils.Methods;
 import com.test.testmobileeunovo.databinding.ActivityMainBinding;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ChosenItemAdapter adapter_choice;
     private MatrixAdapter adapter_matrix;
-    private static ArrayList<Feature_Approval> list_choice, list_chosen;
+    private static ArrayList<Feature_Approval> list_choice;
+    private ArrayList<Feature_Approval> list_chosen;
     private static ArrayList<Matrix> list_matrix;
-
-    public static ArrayList<Feature_Approval> getList_choice() {
-        return list_choice;
-    }
-
-    public static void setList_choice(ArrayList<Feature_Approval> list_choice) {
-        MainActivity.list_choice = list_choice;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +53,12 @@ public class MainActivity extends AppCompatActivity {
             list_choice = new ArrayList<>();
         if(list_matrix == null)
             list_matrix = new ArrayList<>();
-        if(list_chosen == null){
-            list_chosen = new ArrayList<>();
-            Feature_Approval test = new Feature_Approval(-1, "Default");
-            test.setCheck(true);
-            list_chosen.add(test);
-        }
+        list_chosen = new ArrayList<>();
+        Feature_Approval test = new Feature_Approval(-1, "Default");
+        test.setCheck(true);
+        list_chosen.add(test);
         setUp();
+        loadData();
     }
 
     private void setUp(){
@@ -81,10 +82,6 @@ public class MainActivity extends AppCompatActivity {
                 addFragment(detailFragment);
             }
         });
-        list_choice.add(new Feature_Approval(5, "Feature D"));
-        list_choice.add(new Feature_Approval(4, "Feature C"));
-        list_choice.add(new Feature_Approval(2, "Feature B"));
-        list_choice.add(new Feature_Approval(3, "Feature A"));
 
         adapter_choice = new ChosenItemAdapter(list_chosen, true, MainActivity.this, new ItemChosenListener() {
             @Override
@@ -110,10 +107,6 @@ public class MainActivity extends AppCompatActivity {
                 binding.swipRefeshHome.setRefreshing(false);
             }
         });
-
-        list_matrix.add(new Matrix(1, "Transfer Online", 1000, 2000, 2, list_chosen));
-        list_matrix.add(new Matrix(2, "Transfer Offline", 100, 20000, 3, list_choice));
-        list_matrix.add(new Matrix(3, "Transfer Test", 1000, 2000, 1, new ArrayList<>()));
 
         adapter_matrix = new MatrixAdapter(list_matrix, new ItemMatrixListener() {
             @Override
@@ -149,14 +142,19 @@ public class MainActivity extends AppCompatActivity {
         ChoiceFragment choiceFragment = new ChoiceFragment(list_choice, new ItemChoiceListener() {
             @Override
             public void onItemChoice(int id, boolean b) {
-                for (Feature_Approval choice: list_choice) {
-                    if(choice.getId() == id){
+                for (Feature_Approval choice : list_choice) {
+                    if (choice.getId() == id) {
                         choice.setCheck(b);
                     }
                 }
                 getChoices();
             }
-        }, "Choice Feature");
+        }, "Choice Feature", new OnChoiceFragHide() {
+            @Override
+            public void onFragHide() {
+                loadMatrixByFeatureID();
+            }
+        });
         choiceFragment.show(getSupportFragmentManager(), choiceFragment.getTag());
     }
 
@@ -173,5 +171,80 @@ public class MainActivity extends AppCompatActivity {
             list_chosen.add(test);
         }
         adapter_choice.notifyDataSetChanged();
+    }
+
+    private void loadData(){
+        list_matrix.clear();
+        list_choice.clear();
+
+        LoadMatrixAsynctask loadMatrixAsynctask = new LoadMatrixAsynctask(new LoadMatrixListener() {
+            @Override
+            public void onPre() {
+            }
+
+            @Override
+            public void onEnd(ArrayList<Matrix> list_result, boolean done) {
+                binding.layoutLoadData.setVisibility(View.GONE);
+                if(done){
+                    list_matrix.addAll(list_result);
+                    adapter_matrix.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        LoadFeatureApprovalAsyncTask loadFeatureApprovalAsyncTask = new LoadFeatureApprovalAsyncTask(new LoadFeatureApprovalListener() {
+            @Override
+            public void onPre() {
+                if (!Methods.getInstance().isNetworkConnected(MainActivity.this)) {
+                    Toast.makeText(MainActivity.this, "Please connect Internet", Toast.LENGTH_SHORT).show();
+                }
+                binding.layoutLoadData.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onEnd(ArrayList<Feature_Approval> list_result, boolean done) {
+                loadMatrixAsynctask.execute("http://tuanpc.pw/TuyenTest/api/matrix/getAll.php?page=1&step=10&search_txt=");
+                if(done){
+                    list_choice.addAll(list_result);
+                } else {
+                    Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        loadFeatureApprovalAsyncTask.execute("http://tuanpc.pw/TuyenTest/api/feature/getAll.php?page=1&step=10&search_txt=");
+    }
+
+    private void loadMatrixByFeatureID(){
+        list_matrix.clear();
+        String feature_id = "";
+        for(Feature_Approval item: list_chosen){
+            if(item.getId() != -1)
+                feature_id += item.getId() + " ";
+        }
+        feature_id = feature_id.trim();
+        LoadMatrixAsynctask loadMatrixAsynctask = new LoadMatrixAsynctask(new LoadMatrixListener() {
+            @Override
+            public void onPre() {
+                if (!Methods.getInstance().isNetworkConnected(MainActivity.this)) {
+                    Toast.makeText(MainActivity.this, "Please connect Internet", Toast.LENGTH_SHORT).show();
+                }
+                binding.layoutLoadData.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onEnd(ArrayList<Matrix> list_result, boolean done) {
+                binding.layoutLoadData.setVisibility(View.GONE);
+                if(done){
+                    list_matrix.addAll(list_result);
+                    adapter_matrix.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        loadMatrixAsynctask.execute("http://tuanpc.pw/TuyenTest/api/matrix/getByFeatureId.php?page=1&step=50&search_txt=&feature_id=" + feature_id);
     }
 }
