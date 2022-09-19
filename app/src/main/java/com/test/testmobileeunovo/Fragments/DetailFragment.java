@@ -125,19 +125,25 @@ public class DetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if(checkValidData()){
+                    JSONObject jsonParam = new JSONObject();
+                    try {
+                        jsonParam.put("alias", binding.edtAlias.getText().toString());
+                        jsonParam.put("min_Range", binding.edtMinRange.getText().toString());
+                        jsonParam.put("max_Range", binding.edtMaxRange.getText().toString());
+                        jsonParam.put("feature_id", feature_id_chosen);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     if(matrix != null){
                         //update
-                    } else {
-                        //add
-                        JSONObject jsonParam = new JSONObject();
                         try {
-                            jsonParam.put("alias", binding.edtAlias.getText().toString());
-                            jsonParam.put("min_Range", binding.edtMinRange.getText().toString());
-                            jsonParam.put("max_Range", binding.edtMaxRange.getText().toString());
-                            jsonParam.put("feature_id", feature_id_chosen);
+                            jsonParam.put("id", matrix.getId());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        updateMatrix(jsonParam);
+                    } else {
+                        //add
                         addMatrix(jsonParam);
                     }
                 } else {
@@ -219,11 +225,10 @@ public class DetailFragment extends Fragment {
                 }
             }
             for (Feature_Approval choice: list_approval){
+                choice.setCheck(false);
                 for (Feature_Approval user_choice: matrix.getList_approval()){
                     if(choice.getId() == user_choice.getId()){
                         choice.setCheck(true);
-                    } else {
-                        choice.setCheck(false);
                     }
                 }
             }
@@ -379,7 +384,6 @@ public class DetailFragment extends Fragment {
             @Override
             public void onEnd(boolean value, boolean done, int next_id) {
                 if(done){
-                    Log.e("DDD", "onEnd: " + value);
                     if(value){
                         if(getContext() != null)
                             Toast.makeText(getContext(), "Delete Matrix Success", Toast.LENGTH_SHORT).show();
@@ -397,6 +401,85 @@ public class DetailFragment extends Fragment {
         });
 
         requestTaskAsyncTask.execute("http://tuanpc.pw/TuyenTest/api/matrix/deleteMatrix.php", "DELETE");
+    }
+
+    private void updateMatrix(JSONObject js_param){
+
+        JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("id_matrix", matrix.getId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestTaskAsyncTask requestTaskAsyncTask_del_Approval = new RequestTaskAsyncTask(jsonParam, false, new RequestTaskListener() {
+            @Override
+            public void onPre() {
+                if(getContext() != null)
+                    if (!Methods.getInstance().isNetworkConnected(getContext())) {
+                        Toast.makeText(getContext(), "Please connect Internet", Toast.LENGTH_SHORT).show();
+                    }
+                binding.layoutLoadData.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onEnd(boolean value, boolean done, int next_id) {
+                if(done){
+                    if(value){
+                        String id_approval = "";
+                        for(Feature_Approval item: list_approval_chosen){
+                            if(item.getId() != -1)
+                                id_approval += item.getId() + " ";
+                        }
+                        JSONObject jsonParam = new JSONObject();
+                        try {
+                            jsonParam.put("id_matrix", matrix.getId());
+                            jsonParam.put("id_approval", id_approval);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        addApproval(jsonParam);
+                    } else {
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Error when Update matrix", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if(getContext() != null)
+                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        RequestTaskAsyncTask requestTaskAsyncTask = new RequestTaskAsyncTask(js_param, false, new RequestTaskListener() {
+            @Override
+            public void onPre() {
+                if(getContext() != null)
+                    if (!Methods.getInstance().isNetworkConnected(getContext())) {
+                        Toast.makeText(getContext(), "Please connect Internet", Toast.LENGTH_SHORT).show();
+                    }
+                binding.layoutLoadData.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onEnd(boolean value, boolean done, int next_id) {
+                if(done){
+                    Log.e("DDD", "onEnd: " + value);
+                    if(value){
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Update Success", Toast.LENGTH_SHORT).show();
+                        requestTaskAsyncTask_del_Approval.execute("http://tuanpc.pw/TuyenTest/api/matrix_approval/deleteByMatrixID.php", "DELETE");
+                    } else {
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Error when Del matrix", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if(getContext() != null)
+                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        requestTaskAsyncTask.execute("http://tuanpc.pw/TuyenTest/api/matrix/updateMatrix.php", "PUT");
     }
 
     private void addApproval(JSONObject js_param) {
