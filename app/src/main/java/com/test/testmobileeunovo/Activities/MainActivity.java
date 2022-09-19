@@ -54,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
         if(list_matrix == null)
             list_matrix = new ArrayList<>();
         list_chosen = new ArrayList<>();
-        Feature_Approval test = new Feature_Approval(-1, "Default");
-        test.setCheck(true);
-        list_chosen.add(test);
         setUp();
         loadData();
     }
@@ -71,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 DetailFragment detailFragment = new DetailFragment(null, new ForDetailListener() {
                     @Override
                     public void onDone() {
-                        //load Data
+                        loadData();
                     }
 
                     @Override
@@ -104,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         binding.swipRefeshHome.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                loadData();
                 binding.swipRefeshHome.setRefreshing(false);
             }
         });
@@ -114,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 DetailFragment detailFragment = new DetailFragment(matrix, new ForDetailListener() {
                     @Override
                     public void onDone() {
-                        //load Data
+                        loadData();
                     }
 
                     @Override
@@ -176,7 +174,11 @@ public class MainActivity extends AppCompatActivity {
     private void loadData(){
         list_matrix.clear();
         list_choice.clear();
-
+        list_chosen.clear();
+        Feature_Approval test = new Feature_Approval(-1, "Default");
+        test.setCheck(true);
+        list_chosen.add(test);
+        adapter_choice.notifyDataSetChanged();
         LoadMatrixAsynctask loadMatrixAsynctask = new LoadMatrixAsynctask(new LoadMatrixListener() {
             @Override
             public void onPre() {

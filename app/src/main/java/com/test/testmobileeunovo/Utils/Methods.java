@@ -9,11 +9,13 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class Methods {
     private static Methods Instance;
@@ -44,9 +46,6 @@ public class Methods {
 //    jsonParam.put("LocalMediaID", param4);
 //    jsonParam.put("Files", param5);
 //    jsonParam.put("ExtFiles", param6);
-//DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
-//    os.writeBytes(jsonParam.toString());
     public JSONObject make_Request(String Url, String method, JSONObject js_params) throws IOException, JSONException {
         JSONObject data = null;
         URL url = new URL(Url);
@@ -57,6 +56,10 @@ public class Methods {
         if(!method.equals("GET")){
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
+
+            DataOutputStream os = new DataOutputStream(urlConnection.getOutputStream());
+//            os.writeBytes(URLEncoder.encode(js_params.toString(), "UTF-8"));
+            os.writeBytes(js_params.toString());
         }
         try {
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());

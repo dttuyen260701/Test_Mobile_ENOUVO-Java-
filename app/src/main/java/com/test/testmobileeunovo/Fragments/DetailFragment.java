@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +16,20 @@ import com.test.testmobileeunovo.Activities.MainActivity;
 import com.test.testmobileeunovo.Adapters.ChosenItemAdapter;
 import com.test.testmobileeunovo.Adapters.ListChoiceItemAdapter;
 import com.test.testmobileeunovo.Asynctasks.LoadFeatureApprovalAsyncTask;
+import com.test.testmobileeunovo.Asynctasks.RequestTaskAsyncTask;
 import com.test.testmobileeunovo.Listeners.ForDetailListener;
 import com.test.testmobileeunovo.Listeners.ItemChoiceListener;
 import com.test.testmobileeunovo.Listeners.ItemChosenListener;
 import com.test.testmobileeunovo.Listeners.LoadFeatureApprovalListener;
 import com.test.testmobileeunovo.Listeners.OnChoiceFragHide;
+import com.test.testmobileeunovo.Listeners.RequestTaskListener;
 import com.test.testmobileeunovo.Models.Feature_Approval;
 import com.test.testmobileeunovo.Models.Matrix;
 import com.test.testmobileeunovo.Utils.Methods;
 import com.test.testmobileeunovo.databinding.FragmentDetailBinding;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -95,7 +101,7 @@ public class DetailFragment extends Fragment {
                 getContext(), new ItemChosenListener() {
             @Override
             public void onClick() {
-                onChoiceShow(list_approval, true);
+                onChoiceShow(list_approval, false);
             }
         });
 
@@ -106,7 +112,21 @@ public class DetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if(checkValidData()){
-
+                    if(matrix != null){
+                        //update
+                    } else {
+                        //add
+                        JSONObject jsonParam = new JSONObject();
+                        try {
+                            jsonParam.put("alias", binding.edtAlias.getText().toString());
+                            jsonParam.put("min_Range", binding.edtMinRange.getText().toString());
+                            jsonParam.put("max_Range", binding.edtMaxRange.getText().toString());
+                            jsonParam.put("feature_id", feature_id_chosen);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        addMatrix(jsonParam);
+                    }
                 } else {
                     if(getContext() != null) {
                         Toast.makeText(getContext(), "Incorrect data, check again", Toast.LENGTH_SHORT).show();
@@ -220,11 +240,13 @@ public class DetailFragment extends Fragment {
             binding.edtMinRange.setText(matrix.getMin_Range() + "");
             binding.edtMaxRange.setText(matrix.getMax_Range() + "");
             binding.btnDelMatrix.setVisibility(View.VISIBLE);
+            binding.btnAddUpdate.setText("Update");
         } else {
             binding.edtAlias.setText("");
             binding.edtMinRange.setText("");
             binding.edtMaxRange.setText("");
             binding.btnDelMatrix.setVisibility(View.GONE);
+            binding.btnAddUpdate.setText("ADD TO LIST");
         }
     }
 
@@ -286,5 +308,79 @@ public class DetailFragment extends Fragment {
         });
 
         loadFeatureApprovalAsyncTask_approval.execute("http://tuanpc.pw/TuyenTest/api/approval/getAll.php?page=1&step=10&search_txt=");
+    }
+
+    private void addMatrix(JSONObject js_param){
+        RequestTaskAsyncTask requestTaskAsyncTask = new RequestTaskAsyncTask(js_param, true, new RequestTaskListener() {
+            @Override
+            public void onPre() {
+                if(getContext() != null)
+                    if (!Methods.getInstance().isNetworkConnected(getContext())) {
+                        Toast.makeText(getContext(), "Please connect Internet", Toast.LENGTH_SHORT).show();
+                    }
+                binding.layoutLoadData.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onEnd(boolean value, boolean done, int next_id) {
+                if(done){
+                    Log.e("DDD", "onEnd: " + value);
+                    if(value){
+                        String id_approval = "";
+                        for(Feature_Approval item: list_approval_chosen){
+                            if(item.getId() != -1)
+                                id_approval += item.getId() + " ";
+                        }
+                        JSONObject jsonParam = new JSONObject();
+                        try {
+                            jsonParam.put("id_matrix", next_id);
+                            jsonParam.put("id_approval", id_approval);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        addApproval(jsonParam);
+                    } else {
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Error when Add matrix", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if(getContext() != null)
+                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        requestTaskAsyncTask.execute("http://tuanpc.pw/TuyenTest/api/matrix/insertMatrix.php", "POST");
+    }
+
+    private void addApproval(JSONObject js_param) {
+        RequestTaskAsyncTask requestTaskAsyncTask_1 = new RequestTaskAsyncTask(js_param, false, new RequestTaskListener() {
+            @Override
+            public void onPre() {
+                if(getContext() != null)
+                    if (!Methods.getInstance().isNetworkConnected(getContext())) {
+                        Toast.makeText(getContext(), "Please connect Internet", Toast.LENGTH_SHORT).show();
+                    }
+            }
+
+            @Override
+            public void onEnd(boolean value, boolean done, int next_id) {
+                binding.layoutLoadData.setVisibility(View.GONE);
+                if(done){
+                    if(value){
+                        forDetailListener.onDone();
+                        forDetailListener.backFrag();
+                    } else {
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Error when Add Approval", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if(getContext() != null)
+                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        requestTaskAsyncTask_1.execute("http://tuanpc.pw/TuyenTest/api/matrix_approval/insertMatrix_Approval.php", "POST");
     }
 }
