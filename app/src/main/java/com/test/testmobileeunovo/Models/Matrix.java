@@ -1,5 +1,7 @@
 package com.test.testmobileeunovo.Models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 
 public class Matrix {
@@ -8,6 +10,7 @@ public class Matrix {
     private int min_Range;
     private int max_Range;
     private int feature_id;
+    @SerializedName("approvals")
     private ArrayList<Feature_Approval> list_approval;
 
     public Matrix(int id, String alias, int min_Range, int max_Range, int feature_id, ArrayList<Feature_Approval> list_approval) {

@@ -51,8 +51,8 @@ public class Methods {
         URL url = new URL(Url);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod(method);
-        urlConnection.setRequestProperty("Content-Type", "applicaiton/json; charset=utf-8");
-        urlConnection.setRequestProperty("Accept", "applicaiton/json");
+        urlConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+        urlConnection.setRequestProperty("Accept", "application/json");
         if(!method.equals("GET")){
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);

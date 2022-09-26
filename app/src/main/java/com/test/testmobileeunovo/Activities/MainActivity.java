@@ -29,11 +29,20 @@ import com.test.testmobileeunovo.Listeners.OnChoiceFragHide;
 import com.test.testmobileeunovo.Models.Feature_Approval;
 import com.test.testmobileeunovo.Models.Matrix;
 import com.test.testmobileeunovo.R;
+import com.test.testmobileeunovo.Retrofit.ApiService;
+import com.test.testmobileeunovo.Retrofit.Respone_Retrofit;
+import com.test.testmobileeunovo.Retrofit.Retrofit_Respone_Post;
 import com.test.testmobileeunovo.Utils.Methods;
 import com.test.testmobileeunovo.databinding.ActivityMainBinding;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -56,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         list_chosen = new ArrayList<>();
         setUp();
         loadData();
+//        load_Data_Retrofit();
     }
 
     private void setUp(){
@@ -249,4 +259,79 @@ public class MainActivity extends AppCompatActivity {
         });
         loadMatrixAsynctask.execute("http://tuanpc.pw/TuyenTest/api/matrix/getByFeatureId.php?page=1&step=50&search_txt=&feature_id=" + feature_id);
     }
+
+    private void load_Data_Retrofit(){
+        Map<String, String> options = new HashMap<>();
+        options.put("page", "1");
+        options.put("step", "10");
+        options.put("search_txt", "");
+
+        ApiService.apiService.getData_Options(options).
+                enqueue(new Callback<Respone_Retrofit<ArrayList<Matrix>>>() {
+                    @Override
+                    public void onResponse(Call<Respone_Retrofit<ArrayList<Matrix>>> call, Response<Respone_Retrofit<ArrayList<Matrix>>> response) {
+                        list_matrix.addAll(response.body().getList_data());
+                        adapter_matrix.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Respone_Retrofit<ArrayList<Matrix>>> call, Throwable t) {
+
+                    }
+                });
+    }
+
+//    private void loadData_Retrofit(){
+//        Map<String , String> options = new HashMap<>();
+//        options.put("page", "1");
+//        options.put("step", "10");
+//        options.put("search_txt", "");
+//
+//        ApiService.apiService.getData_Options(options).
+//                enqueue(new Callback<Respone_Retrofit>() {
+//                    @Override
+//                    public void onResponse(Call<Respone_Retrofit> call, Response<Respone_Retrofit> response) {
+//                        Toast.makeText(MainActivity.this, "call API OK", Toast.LENGTH_SHORT).show();
+//                        int a = 1;
+//                        response.body();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<Respone_Retrofit> call, Throwable t) {
+//                        Toast.makeText(MainActivity.this, "Error: " + t, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//        Matrix matrix = new Matrix(8, "Sua", 1000, 20000, 2, new ArrayList<>());
+//        ApiService.apiService.update(matrix).
+//                enqueue(new Callback<Respone_Retrofit<Retrofit_Respone_Post<Boolean>>>() {
+//                    @Override
+//                    public void onResponse(Call<Respone_Retrofit<Retrofit_Respone_Post<Boolean>>> call, Response<Respone_Retrofit<Retrofit_Respone_Post<Boolean>>> response) {
+//                        Log.e("III", "onResponse: " + response.body().getList_data().getValue());
+//                        int a = 1;
+//                        response.body();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<Respone_Retrofit<Retrofit_Respone_Post<Boolean>>> call, Throwable t) {
+//
+//                    }
+//                });
+//
+//        Map<String , String> options = new HashMap<>();
+//        options.put("id_matrix", "7");
+//        ApiService.apiService.delete(options).
+//                enqueue(new Callback<Respone_Retrofit<Retrofit_Respone_Post<Boolean>>>() {
+//                    @Override
+//                    public void onResponse(Call<Respone_Retrofit<Retrofit_Respone_Post<Boolean>>> call, Response<Respone_Retrofit<Retrofit_Respone_Post<Boolean>>> response) {
+//                        Log.e("III", "onResponse: " + response.body().getList_data().getValue());
+//                        int a = 1;
+//                        response.body();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<Respone_Retrofit<Retrofit_Respone_Post<Boolean>>> call, Throwable t) {
+//
+//                    }
+//                });
+//    }
 }
