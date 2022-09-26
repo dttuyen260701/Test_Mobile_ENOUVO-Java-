@@ -41,7 +41,8 @@ public interface ApiService {
             "Accept: application/json",
             "Content-Type: application/json; charset=utf-8"
     })
-    @GET("matrix/getAll.php")
+//    @GET("matrix/getAll.php")
+    @HTTP(method = "GET", path = "matrix/getAll.php")
     Call<Respone_Retrofit<ArrayList<Matrix>>> getData_Options(@QueryMap Map<String, String> options);
 
     @GET("feature/getAll.php")

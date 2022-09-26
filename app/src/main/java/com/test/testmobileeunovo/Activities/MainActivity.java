@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
             list_matrix = new ArrayList<>();
         list_chosen = new ArrayList<>();
         setUp();
-        loadData();
-//        load_Data_Retrofit();
+//        loadData();
+        load_Data_Retrofit();
     }
 
     private void setUp(){
@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<Respone_Retrofit<ArrayList<Matrix>>> call, Throwable t) {
-
+                        Toast.makeText(MainActivity.this, "Error: " + t, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
