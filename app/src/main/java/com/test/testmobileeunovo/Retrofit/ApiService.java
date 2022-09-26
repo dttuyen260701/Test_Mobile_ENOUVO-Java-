@@ -50,7 +50,7 @@ public interface ApiService {
                                    @Query("search_txt") String  search_txt);
 
     //feature/getAll.php/1/user
-    @GET("feature/getAll.php/{id}/user")
+    @GET("feature/getAll.php/{id}/user")// 1 dấu "/" nếu đường dẫn k cso path
     Call<Respone_Retrofit> getData_Path(@Path("id") int id);
 
     //feature/getAll.php/1/user?text= ???
